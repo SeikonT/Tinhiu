@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Phép Màu 💫</title>
+
+  <!-- Firebase (chỉ dùng khi APP_MODE = 'firebase') -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
+
+  <style>
+    
+    :root {
+      --bg: #0f1020;
+      --card: rgba(255,255,255,0.08);
+      --card2: rgba(255,255,255,0.12);
+      --text: #f7f2ff;
+      --muted: rgba(247,242,255,0.76);
+      --accent: #ff8fd8;
+      --accent2: #9d8cff;
+      --shadow: 0 18px 60px rgba(0,0,0,.35);
+      --radius: 24px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; min-height: 100%; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(255,143,216,.18), transparent 30%),
+        radial-gradient(circle at 20% 20%, rgba(157,140,255,.18), transparent 22%),
+        linear-gradient(180deg, #0a0b16 0%, #101224 45%, #14162b 100%);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    .stars, .stars::before, .stars::after {
+      position: fixed;
+      inset: 0;
+      content: "";
+      pointer-events: none;
+      background-image:
+        radial-gradient(1px 1px at 20px 30px, rgba(255,255,255,.9) 99%, transparent),
+        radial-gradient(1px 1px at 120px 80px, rgba(255,255,255,.75) 99%, transparent),
+        radial-gradient(1px 1px at 200px 140px, rgba(255,255,255,.85) 99%, transparent),
+        radial-gradient(1px 1px at 300px 60px, rgba(255,255,255,.7) 99%, transparent),
+        radial-gradient(1px 1px at 420px 180px, rgba(255,255,255,.8) 99%, transparent),
+        radial-gradient(1px 1px at 560px 90px, rgba(255,255,255,.8) 99%, transparent),
+        radial-gradient(1px 1px at 680px 220px, rgba(255,255,255,.7) 99%, transparent);
+      background-size: 760px 300px;
+      animation: drift 120s linear infinite;
+      opacity: .55;
+      z-index: 0;
+    }
+    .stars::before { transform: scale(1.2); opacity: .35; animation-duration: 180s; }
+    .stars::after { transform: scale(1.45); opacity: .22; animation-duration: 240s; }
+
+    @keyframes drift { from { transform: translateY(0); } to { transform: translateY(-300px); } }
+
+    .wrap { position: relative; z-index: 1; width: min(100%, 1100px); margin: 0 auto; padding: 18px; }
+
+    .hidden { display: none !important; }
+
+    .panel {
+      width: min(100%, 760px);
+      margin: 16px auto;
+      padding: 20px;
+      background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow: var(--shadow);
+      border-radius: 28px;
+      backdrop-filter: blur(16px);
+    }
+
+    .field, .btn, textarea, input[type="text"], input[type="file"] {
+      width: 100%;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.07);
+      color: var(--text);
+      padding: 13px 14px;
+      outline: none;
+      font: inherit;
+    }
+    textarea { min-height: 110px; resize: vertical; }
+    input::file-selector-button {
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 14px;
+      margin-right: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn {
+      appearance: none;
+      border: 0;
+      font-weight: 800;
+      cursor: pointer;
+      color: white;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      box-shadow: 0 14px 40px rgba(157,140,255,.25);
+      transition: transform .2s ease, filter .2s ease;
+      text-align: center;
+    }
+    .btn:active { transform: scale(.98); }
+    .btn:hover { filter: brightness(1.05); }
+    .ghost { background: rgba(255,255,255,.08); box-shadow: none; }
+
+    .hero {
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 28px 18px;
+      position: relative;
+    }
+    .hero-card {
+      width: min(100%, 760px);
+      padding: 28px 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow: var(--shadow);
+      border-radius: 32px;
+      backdrop-filter: blur(16px);
+      animation: floatIn 1.2s ease both;
+    }
+    @keyframes floatIn { from { opacity: 0; transform: translateY(18px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+    .badge {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      color: var(--muted);
+      font-size: 14px;
+      letter-spacing: .2px;
+    }
+    h1 {
+      margin: 18px 0 10px;
+      font-size: clamp(2.2rem, 7vw, 4.6rem);
+      line-height: 1.02;
+      text-shadow: 0 10px 30px rgba(0,0,0,.2);
+    }
+    .sub {
+      margin: 0 auto;
+      max-width: 56ch;
+      color: var(--muted);
+      font-size: clamp(.98rem, 2.8vw, 1.12rem);
+      line-height: 1.7;
+    }
+    .start-row {
+      margin-top: 22px;
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .countdown-overlay {
+      position: fixed; inset: 0;
+      background: rgba(6, 6, 14, .88);
+      display: none;
+      place-items: center;
+      z-index: 9999;
+      backdrop-filter: blur(10px);
+      opacity: 0;
+      transition: opacity .6s ease;
+    }
+    .countdown-overlay.show { opacity: 1; }
+    .countdown-box { text-align: center; padding: 24px; }
+    .countdown-num {
+      font-size: clamp(4rem, 16vw, 7rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, #fff, #ff8fd8, #9d8cff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 0 0 30px rgba(255,255,255,.15);
+      animation: pop .9s ease;
+    }
+    @keyframes pop { 0% { transform: scale(.6); opacity: 0; } 35% { transform: scale(1.08); opacity: 1; } 100% { transform: scale(1); } }
+    .countdown-text { color: var(--muted); margin-top: 8px; font-size: 15px; }
+
+    .section { margin-top: 12px; padding: 16px 0 30px; }
+    .section-title { font-size: clamp(1.4rem, 4vw, 2rem); margin: 0 0 14px; }
+    .section-desc { color: var(--muted); margin: 0 0 18px; line-height: 1.7; }
+
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 0 0 16px;
+      flex-wrap: wrap;
+    }
+    .pill {
+      padding: 10px 14px; border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+      color: var(--muted);
+    }
+
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; }
+    .card {
+      grid-column: span 12;
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.11), rgba(255,255,255,.05));
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+      opacity: 0;
+      transform: translateY(24px) scale(.98);
+      transition: opacity .8s ease, transform .8s ease, filter .8s ease;
+      filter: blur(6px);
+    }
+    .card.visible { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+
+    .media {
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      background: rgba(255,255,255,.05);
+      display: block;
+      object-fit: cover;
+    }
+    .card-body { padding: 14px 14px 16px; }
+    .meta {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      margin-bottom: 10px; color: var(--muted); font-size: 14px;
+    }
+    .title { margin: 0 0 8px; font-size: 1.05rem; }
+    .caption { margin: 0; color: #fff; line-height: 1.7; }
+    .like-row {
+      margin-top: 12px; display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    }
+    .like-btn {
+      border: 0; border-radius: 999px; padding: 11px 14px; cursor: pointer; color: white;
+      background: linear-gradient(135deg, #ff6fa7, #ff9eaf); font-weight: 700;
+    }
+    .like-btn.liked { background: linear-gradient(135deg, #9d8cff, #ff8fd8); }
+
+    .player-bar {
+      display: flex; gap: 10px; justify-content: center; align-items: center; flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    audio { width: 100%; }
+
+    @media (min-width: 720px) { .card { grid-column: span 6; } }
+    @media (min-width: 1024px) { .card { grid-column: span 4; } }
+  </style>
+</head>
+<body>
+  <div class="stars"></div>
+
+  <div class="countdown-overlay" id="countdownOverlay">
+    <div class="countdown-box">
+      <div class="countdown-num" id="countdownNum">3</div>
+      <div class="countdown-text">Đang mở kho kỷ niệm...</div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <!-- PROFILE -->
+    <section class="panel" id="profilePanel">
+      <div class="badge">💞 memory vault • love story • dreamy</div>
+      <h2 style="margin:14px 0 8px; font-size: clamp(1.5rem, 4vw, 2rem);">Nhập tên để bắt đầu</h2>
+      <p class="section-desc">Dành riêng cho hai người, lưu lại những khoảnh khắc mà mình không muốn quên.</p>
+      <div style="display:grid; gap:12px;">
+        <input type="text" id="nameInput" placeholder="Tên của bạn" class="field" />
+        <input type="file" id="avatarInput" accept="image/*" class="field" />
+        <img id="avatarPreview" alt="avatar" style="width:84px;height:84px;border-radius:50%;object-fit:cover;display:none;justify-self:center;border:2px solid rgba(255,255,255,.25);" />
+        <button class="btn" id="saveProfileBtn">Tiếp tục</button>
+      </div>
+    </section>
+
+    <!-- HERO -->
+    <section class="hero hidden" id="heroSection">
+      <div class="hero-card">
+        <div class="badge">✨ opening cinematic • stars • hearts • fade</div>
+        <h1>Phép Màu</h1>
+        <p class="sub">Nơi giữ lại những ảnh, video và những khoảnh khắc chỉ thuộc về hai người. Mỗi lần mở ra là một lần quay về.</p>
+        <div class="start-row">
+          <button class="btn" id="startBtn">Bắt đầu</button>
+        </div>
+        <div class="player-bar">
+          <button class="btn ghost" id="musicToggle">🔊 Nhạc nền</button>
+          <audio id="bgMusic" loop preload="auto">
+            <!-- đổi file này thành nhạc của bạn -->
+            <source src="Phép Màu (Đàn Cá Gỗ OST) - MAYDAYs ft. Minh Tốc Official Lyric Video.mp3" type="audio/mpeg" />
+          </audio>
+        </div>
+      </div>
+      </section>
+
+    <!-- VAULT -->
+    <section class="section hidden" id="vaultSection">
+      <div class="topbar">
+        <h2 class="section-title">Kho kỷ niệm</h2>
+        <div class="pill" id="itemCount">0 kỷ niệm</div>
+      </div>
+      <p class="section-desc">Ảnh và video sẽ hiện dần khi lướt tới, mờ đi khi rời khỏi màn hình, và quay lại sẽ load lại hiệu ứng.</p>
+      <div class="grid" id="memoryGrid"></div>
+    </section>
+  </div>
+
+  <script>
+    // ====== CHỌN CHẾ ĐỘ ======
+    // local = không Firebase, lưu tạm bằng localStorage (nhẹ, nhanh)
+    // firebase = dùng Firebase Storage + Realtime Database
+    const APP_MODE = 'firebase'; // đổi thành 'firebase' nếu muốn dùng Firebase
+
+    // ====== FIREBASE (chỉ khi APP_MODE = 'firebase') ======
+    const firebaseConfig = {
+      apiKey: 'AIzaSyBTrWF_XmERg7yPOf034u3MmCCCIpFHoAo',
+      authDomain: 'bestmemory-f615f.firebaseapp.com',
+      databaseURL: 'https://bestmemory-f615f-default-rtdb.firebaseio.com',
+      projectId: 'bestmemory-f615f',
+      storageBucket: 'bestmemory-f615f.firebasestorage.app',
+      messagingSenderId: '665922224684',
+      appId: '1:665922224684:web:849f1d2479c18571ac8789'
+    };
+
+    let db = null;
+    let storage = null;
+    function initFirebase() {
+      if (APP_MODE !== 'firebase') return;
+      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+      db = firebase.database();
+      storage = firebase.storage();
+    }
+
+    // ====== DOM ======
+    const profilePanel = document.getElementById('profilePanel');
+    const heroSection = document.getElementById('heroSection');
+    const vaultSection = document.getElementById('vaultSection');
+    const startBtn = document.getElementById('startBtn');
+    const saveProfileBtn = document.getElementById('saveProfileBtn');
+    const countdownOverlay = document.getElementById('countdownOverlay');
+    const countdownNum = document.getElementById('countdownNum');
+    const memoryGrid = document.getElementById('memoryGrid');
+    const itemCount = document.getElementById('itemCount');
+    const avatarInput = document.getElementById('avatarInput');
+    const avatarPreview = document.getElementById('avatarPreview');
+    const nameInput = document.getElementById('nameInput');
+    const bgMusic = document.getElementById('bgMusic');
+    const musicToggle = document.getElementById('musicToggle');
+
+    // ====== DATA ======
+    const defaultMemories = [
+      { type: 'image', src: 'AnhNen.jpg', title: 'Một chiều rất dịu', caption: 'Đà Lạt hay bất cứ nơi nào, chỉ cần có nhau là đủ.' },
+      { type: 'image', src: 'Anh2.jpg', title: 'Nụ cười của em', caption: 'Thứ làm mọi ngày bình thường trở nên thật đẹp.' },
+      { type: 'video', src: 'videos/video1.mp4', title: 'Một đoạn ký ức', caption: 'Đoạn video này giữ lại tiếng cười mà mình không muốn quên.', poster: 'images/video-poster.jpg' }
+    ];
+
+    let memories = [];
+    let liked = JSON.parse(localStorage.getItem('love_likes') || '{}');
+    let currentUser = JSON.parse(localStorage.getItem('love_profile') || 'null');
+
+    // ====== HELPERS ======
+    function saveLocalPosts() {
+      localStorage.setItem('love_posts', JSON.stringify(memories));
+    }
+
+    function loadStoredPosts() {
+      const stored = localStorage.getItem('love_posts');
+      if (stored) {
+        try { memories = JSON.parse(stored) || []; } catch { memories = []; }
+      } else {
+        memories = [...defaultMemories];
+      }
+    }
+
+    async function loadFirebasePosts() {
+      if (!db) return;
+      const snap = await db.ref('posts').once('value');
+      const obj = snap.val() || {};
+      memories = Object.entries(obj)
+        .map(([id, p]) => ({ ...p, _id: id }))
+        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      if (!memories.length) memories = [...defaultMemories];
+      renderMemories();
+    }
+
+    function ensureSection(section) { section.classList.remove('hidden'); }
+
+    function openVault() {
+      countdownOverlay.style.display = 'grid';
+      requestAnimationFrame(() => countdownOverlay.classList.add('show'));
+      let n = 3;
+      countdownNum.textContent = n;
+      const timer = setInterval(() => {
+        n -= 1;
+        if (n > 0) {
+          countdownNum.textContent = n;
+        } else {
+          clearInterval(timer);
+          countdownNum.textContent = '∞';
+          setTimeout(() => {
+            countdownOverlay.classList.remove('show');
+            setTimeout(() => {
+              countdownOverlay.style.display = 'none';
+              ensureSection(vaultSection);
+              renderMemories();
+            }, 450);
+          }, 300);
+        }
+      }, 1000);
+    }
+
+    function getCurrentProfile() {
+      return JSON.parse(localStorage.getItem('love_profile') || 'null');
+    }
+
+    function setCurrentProfile(profile) {
+      currentUser = profile;
+      localStorage.setItem('love_profile', JSON.stringify(profile));
+    }
+
+    // ====== RENDER ======
+    function renderMemories() {
+      memoryGrid.innerHTML = '';
+      itemCount.textContent = `${memories.length} kỷ niệm`;
+
+      memories.forEach((m, index) => {
+        const card = document.createElement('article');
+        card.className = 'card';
+        card.dataset.index = index;
+
+        const likedState = !!liked[index];
+        const mediaHTML = m.type === 'image'
+          ? `<img class="media" src="${m.src}" alt="${m.title}">`
+          : `<video class="media" muted loop playsinline preload="metadata" poster="${m.poster || ''}"><source src="${m.src}" type="video/mp4"></video>`;
+
+        card.innerHTML = `
+          ${mediaHTML}
+          <div class="card-body">
+            <div class="meta">
+              <span>${m.type === 'image' ? 'Ảnh' : 'Video'}</span>
+              <span>•</span>
+              <span>kỷ niệm ${index + 1}</span>
+            </div>
+            <h3 class="title">${m.title}</h3>
+            <p class="caption">${m.caption}</p>
+            <div class="like-row">
+              <button class="like-btn ${likedState ? 'liked' : ''}" data-like="${index}">${likedState ? '💖 Đã thả tim' : '🤍 Thả tim'}</button>
+              <span>${likedState ? 1 : 0} lượt</span>
+            </div>
+          </div>
+        `;
+        memoryGrid.appendChild(card);
+      });
+
+      bindLikes();
+      observeCards();
+      startLazyVideos();
+    }
+
+    function bindLikes() {
+      document.querySelectorAll('[data-like]').forEach(btn => {
+        btn.onclick = () => {
+          const i = btn.dataset.like;
+          liked[i] = !liked[i];
+          localStorage.setItem('love_likes', JSON.stringify(liked));
+          renderMemories();
+        };
+      });
+    }
+
+    const cardObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+        else entry.target.classList.remove('visible');
+      });
+    }, { threshold: 0.18 });
+
+    function observeCards() {
+      document.querySelectorAll('.card').forEach(card => cardObserver.observe(card));
+    }
+
+    function startLazyVideos() {
+      const vids = document.querySelectorAll('video');
+      const videoObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          const v = entry.target;
+          if (entry.isIntersecting) {
+            v.play().catch(() => {});
+          } else {
+            v.pause();
+            v.currentTime = 0;
+          }
+        });
+      }, { threshold: 0.5 });
+      vids.forEach(v => videoObserver.observe(v));
+    }
+    // ====== PROFILE ======
+    avatarInput.addEventListener('change', () => {
+      const file = avatarInput.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        avatarPreview.src = e.target.result;
+        avatarPreview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    });
+
+    saveProfileBtn.addEventListener('click', async () => {
+      const name = nameInput.value.trim();
+      const file = avatarInput.files[0];
+      if (!name || !file) return alert('Vui lòng nhập tên và chọn ảnh đại diện!');
+
+      const avatar = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      setCurrentProfile({ name, avatar });
+      profilePanel.classList.add('hidden');
+      ensureSection(heroSection);
+    });
+
+    // ====== START / MUSIC ======
+    startBtn.addEventListener('click', openVault);
+
+    let musicOn = false;
+    musicToggle.addEventListener('click', async () => {
+      try {
+        if (musicOn) {
+          bgMusic.pause();
+          musicToggle.textContent = '🔇 Nhạc nền';
+        } else {
+          await bgMusic.play();
+          musicToggle.textContent = '🔊 Nhạc nền';
+        }
+        musicOn = !musicOn;
+      } catch (e) {
+        alert('Trình duyệt chặn tự phát nhạc. Hãy bấm nút nhạc nền thêm một lần nữa.');
+      }
+    });
+    // ====== INIT ======
+    (async function init() {
+      if (currentUser) {
+        profilePanel.classList.add('hidden');
+        ensureSection(heroSection);
+      } else {
+        ensureSection(profilePanel);
+      }
+
+      if (APP_MODE === 'firebase') {
+        try {
+          initFirebase();
+          await loadFirebasePosts();
+        } catch (e) {
+          console.warn('Firebase mode chưa sẵn sàng, chuyển sang local demo.');
+          loadStoredPosts();
+          memories = memories.length ? memories : [...defaultMemories];
+        }
+      } else {
+        loadStoredPosts();
+      }
+    })();
+  </script>
+</body>
+</html>
