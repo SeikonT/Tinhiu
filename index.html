@@ -205,20 +205,25 @@
 
     .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; }
     .card {
-      grid-column: span 12;
-      position: relative;
-      overflow: hidden;
-      border-radius: var(--radius);
-      background: linear-gradient(180deg, rgba(255,255,255,.11), rgba(255,255,255,.05));
-      border: 1px solid rgba(255,255,255,.12);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(14px);
-      opacity: 0;
-      transform: translateY(24px) scale(.98);
-      transition: opacity .8s ease, transform .8s ease, filter .8s ease;
-      filter: blur(6px);
-    }
-    .card.visible { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+  grid-column: span 12;
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, rgba(255,255,255,.11), rgba(255,255,255,.05));
+  border: 1px solid rgba(255,255,255,.12);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(8px);
+
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity .55s ease, transform .55s ease;
+
+  will-change: transform, opacity;
+}
+   .card.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
 
     .media {
       width: 100%;
@@ -226,6 +231,8 @@
       background: rgba(255,255,255,.05);
       display: block;
       object-fit: cover;
+      transform: translateZ(0);
+will-change: transform;
     }
     .card-body { padding: 14px 14px 16px; }
     .meta {
@@ -388,10 +395,11 @@
     // ====== DATA ======
     const defaultMemories = [
       { type: 'image', src: 'AnhNen.jpg', title: 'Một chiều rất dịu', caption: 'Đà Lạt hay bất cứ nơi nào, chỉ cần có nhau là đủ.' },
-      { type: 'image', src: 'AnhNen.jpg', title: 'Một chiều rất dịu', caption: 'Đà Lạt hay bất cứ nơi nào, chỉ cần có nhau là đủ.' },
-      { type: 'image', src: 'AnhNen.jpg', title: 'Một chiều rất dịu', caption: 'Đà Lạt hay bất cứ nơi nào, chỉ cần có nhau là đủ.' },
-      { type: 'image', src: 'AnhNen.jpg', title: 'Một chiều rất dịu', caption: 'Đà Lạt hay bất cứ nơi nào, chỉ cần có nhau là đủ.' },
-      { type: 'image', src: 'AnhNen.jpg', title: 'Một chiều rất dịu', caption: 'Đà Lạt hay bất cứ nơi nào, chỉ cần có nhau là đủ.' },
+       { type: 'image', src: 'AnhNen.jpg', title: 'Một chiều rất dịu', caption: 'Đà Lạt hay bất cứ nơi nào, chỉ cần có nhau là đủ.' },
+        { type: 'image', src: 'AnhNen.jpg', title: 'Một chiều rất dịu', caption: 'Đà Lạt hay bất cứ nơi nào, chỉ cần có nhau là đủ.' },
+         { type: 'image', src: 'AnhNen.jpg', title: 'Một chiều rất dịu', caption: 'Đà Lạt hay bất cứ nơi nào, chỉ cần có nhau là đủ.' },
+          { type: 'image', src: 'AnhNen.jpg', title: 'Một chiều rất dịu', caption: 'Đà Lạt hay bất cứ nơi nào, chỉ cần có nhau là đủ.' },
+           { type: 'image', src: 'AnhNen.jpg', title: 'Một chiều rất dịu', caption: 'Đà Lạt hay bất cứ nơi nào, chỉ cần có nhau là đủ.' },
       { type: 'image', src: 'Anh2.jpg', title: 'Nụ cười của em', caption: 'Thứ làm mọi ngày bình thường trở nên thật đẹp.' },
       { type: 'video', src: 'videos/video1.mp4', title: 'Một đoạn ký ức', caption: 'Đoạn video này giữ lại tiếng cười mà mình không muốn quên.', poster: 'images/video-poster.jpg' }
     ];
@@ -530,7 +538,11 @@
             v.play().catch(() => {});
           } else {
             v.pause();
-            v.currentTime = 0;
+            if (entry.isIntersecting) {
+  v.play().catch(() => {});
+} else {
+  v.pause();
+}
           }
         });
       }, { threshold: 0.5 });
