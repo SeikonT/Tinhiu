@@ -216,7 +216,7 @@
 
   opacity: 0;
   transform: translateY(24px);
-  transition: opacity .55s ease, transform .55s ease;
+  transition: opacity .8s ease-out, transform .8s ease-out;
 
   will-change: transform, opacity;
 }
@@ -523,7 +523,7 @@ will-change: transform;
         if (entry.isIntersecting) entry.target.classList.add('visible');
         else entry.target.classList.remove('visible');
       });
-    }, { threshold: 0.18 });
+    }, { threshold: 0.25 });
 
     function observeCards() {
       document.querySelectorAll('.card').forEach(card => cardObserver.observe(card));
